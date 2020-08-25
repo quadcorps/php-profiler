@@ -29,7 +29,7 @@ class Profiler
     /**
      * @var SaverInterface
      */
-    private $saveHandler;
+    protected $saveHandler;
 
     /**
      * @var ProfilerInterface
