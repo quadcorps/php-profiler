@@ -20,13 +20,13 @@ namespace Xhgui\Profiler;
 class ContinuousCliProfiler extends Profiler {
     public function stop()
     {
-        $this->setRequestTime(&$_SERVER);
+        $this->setRequestTime($_SERVER);
 
         $data = $this->disable();
 
         $data['profile'] = $this->processProfileData($data['profile']);
 
-        $this->generateDocumentKey(&$data);
+        $this->generateDocumentKey($data);
 
         $this->save($data);
 
