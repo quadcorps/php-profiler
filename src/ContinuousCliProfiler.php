@@ -2,6 +2,9 @@
 
 namespace Xhgui\Profiler;
 
+use MongoId;
+use Xhgui\Profiler\Saver\MongoSaver;
+
 /**
  * Class ContinuousCliProfiler
  *
@@ -24,7 +27,7 @@ class ContinuousCliProfiler extends Profiler {
 
         $data = $this->disable();
 
-        $data['profile'] = $this->processProfileData($data['profile']);
+        $data['profile'] = ProfilerHelper::processProfileData($data['profile']);
 
         $this->generateDocumentKey($data);
 
@@ -40,30 +43,10 @@ class ContinuousCliProfiler extends Profiler {
      *
      * @param $server array This is the $_SERVER PHP global variable
      */
-    private function setRequestTime(array $server) {
+    private function setRequestTime(array &$server) {
         //need to adjust request times because with php script there is a single request only
         $server['REQUEST_TIME'] = time();
         $server['REQUEST_TIME_FLOAT'] = microtime(true);
-    }
-
-    /**
-     * This method processes the profile data to remove any dots (.) that are found
-     * in the keys of the profile data.
-     *
-     * This is because mongoDB does not allow keys to be inserted into the document with . in the
-     * key name
-     *
-     * @param array $profileData The profile data array
-     * @return array Return the processes data
-     */
-    private function processProfileData(array $profileData): array
-    {
-        $profile = [];
-        foreach ($profileData as $key => $value) {
-            $profile[strtr($key, ['.' => '_'])] = $value;
-            echo $key . "\n";
-        }
-        return $profile;
     }
 
     /**
@@ -73,10 +56,10 @@ class ContinuousCliProfiler extends Profiler {
      *
      * @param array $data
      */
-    private function generateDocumentKey(array $data) {
-        if ($this->saveHandler instanceof MongoSaver) {
+    private function generateDocumentKey(array &$data) {
+        if ($this->getSaver() instanceof MongoSaver) {
             //reset id every time else we dont insert a new record
-            $data['_id'] = new \MongoId();
+            $data['_id'] = new MongoId();
         }
     }
 }
