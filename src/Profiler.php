@@ -29,7 +29,7 @@ class Profiler
     /**
      * @var SaverInterface
      */
-    protected $saveHandler;
+    private $saveHandler;
 
     /**
      * @var ProfilerInterface
@@ -105,7 +105,7 @@ class Profiler
         return $this->profiler ?: null;
     }
 
-    private function getSaver()
+    protected function getSaver()
     {
         if ($this->saveHandler === null) {
             $this->saveHandler = SaverFactory::create($this->config['save.handler'], $this->config) ?: false;
@@ -237,6 +237,11 @@ class Profiler
     public function stop()
     {
         $data = $this->disable();
+
+        if (isset($data['profile'])) {
+            $data['profile'] = ProfilerHelper::processProfileData($data['profile']);
+        }
+
         $this->save($data);
 
         return $data;
